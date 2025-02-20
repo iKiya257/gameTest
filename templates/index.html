@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guess the Number</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .history-list {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        .history-item {
+            padding: 5px;
+            margin: 2px 0;
+            border-radius: 5px;
+        }
+        .too-high {
+            background-color: #ffcccc; /* สีแดงสำหรับตัวเลขมาก */
+        }
+        .too-low {
+            background-color: #ccffcc; /* สีเขียวสำหรับตัวเลขน้อย */
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container mt-5">
+        <div class="card mx-auto" style="max-width: 400px;">
+            <div class="card-header bg-primary text-white">
+                <h1 class="card-title text-center">Guess the Number</h1>
+            </div>
+            <div class="card-body">
+                {% if game_data['game_over'] %}
+                    <p class="text-center fs-5">{{ message }}</p>
+                    <div class="d-grid">
+                        <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#winModal">
+                            Start New Game
+                        </button>
+                    </div>
+                {% else %}
+                    <p class="text-center fs-5">Guess a number between 1 and 100:</p>
+                    <form method="POST" class="text-center">
+                        <input type="number" name="guess" min="1" max="100" class="form-control mb-3" required>
+                        <button type="submit" class="btn btn-primary w-100">Submit</button>
+                    </form>
+                    <p class="text-center fs-5">{{ message }}</p>
+                {% endif %}
+                <hr>
+                <h2 class="text-center">Guess History</h2>
+                <div class="history-list">
+                    {% for guess in game_data['history'] %}
+                        <div class="history-item {% if guess > game_data['number'] %}too-high{% else %}too-low{% endif %}">
+                            {{ guess }}
+                        </div>
+                    {% endfor %}
+                </div>
+                <p class="text-center mt-3">Attempts remaining: {{ 10 - game_data['attempts'] }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Winning -->
+    <div class="modal fade" id="winModal" tabindex="-1" aria-labelledby="winModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="winModalLabel">Congratulations!</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>{{ message }}</p>
+                    <p>Do you want to play again?</p>
+                </div>
+                <div class="modal-footer">
+                    <form method="POST">
+                        <button type="submit" name="new_game" class="btn btn-success">Start New Game</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // เปิด Modal เมื่อผู้ใช้ชนะ
+        {% if game_data['game_over'] and message == 'You win!' %}
+            window.onload = function() {
+                var winModal = new bootstrap.Modal(document.getElementById('winModal'));
+                winModal.show();
+            };
+        {% endif %}
+    </script>
+</body>
+</html>
